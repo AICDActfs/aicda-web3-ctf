@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     icon: [
       { url: '/icon.png', sizes: '128x128', type: 'image/png' },
       { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
-      { url: '/logo.jpg', sizes: 'any' }
+      { url: '/logo.png', sizes: 'any' }
     ],
     shortcut: '/icon.png',
     apple: '/icon.png',
@@ -22,20 +22,20 @@ export const metadata: Metadata = {
     siteName: 'Anonymous India Cyber Defence Academy (AICDA)',
     images: [
       {
-        url: '/aicda-preview.jpg',
-        width: 512,
-        height: 512,
-        alt: 'AICDA Logo',
+        url: '/og-image.jpg?v=2',
+        width: 1200,
+        height: 630,
+        alt: 'AICDA Cryptocurrency Lab',
       },
     ],
     locale: 'en_IN',
     type: 'website',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'AICDA Cryptocurrency Penetration Testing Lab',
     description: 'Anonymous India Cyber Defence Academy - Advanced Web3, Smart Contract & DeFi Security Auditing Cyber Range.',
-    images: ['/aicda-preview.jpg'],
+    images: ['/og-image.jpg?v=2'],
   },
 };
 
@@ -50,10 +50,10 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link rel="icon" href="/icon.png" sizes="128x128" type="image/png" />
         <link rel="apple-touch-icon" href="/icon.png" />
-        <meta property="og:image" content="https://aicda-web3-ctf.vercel.app/aicda-preview.jpg" />
-        <meta property="og:image:secure_url" content="https://aicda-web3-ctf.vercel.app/aicda-preview.jpg" />
-        <meta property="og:image:width" content="512" />
-        <meta property="og:image:height" content="512" />
+        <meta property="og:image" content="https://aicda-web3-ctf.vercel.app/og-image.jpg?v=2" />
+        <meta property="og:image:secure_url" content="https://aicda-web3-ctf.vercel.app/og-image.jpg?v=2" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
       </head>
       <body className="min-h-screen bg-cyber-black text-gray-200 antialiased selection:bg-cyber-green selection:text-black">
