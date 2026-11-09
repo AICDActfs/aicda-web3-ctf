@@ -57,7 +57,6 @@ export default function MatrixRain() {
     };
 
     const draw = () => {
-      // Dark cyber trail
       ctx.fillStyle = 'rgba(3, 6, 8, 0.22)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -66,7 +65,7 @@ export default function MatrixRain() {
       const maskH = Math.min(canvas.height * 0.70, 480);
       const maskW = maskH * (240 / 360);
 
-      // Subtle Anonymous mask watermark in background (screen mode = zero glare, perfect readability)
+      // Subtle Anonymous mask watermark (soft green - zero glare)
       if (maskImg.complete && maskImg.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
@@ -86,7 +85,7 @@ export default function MatrixRain() {
         const onMask = isInsideMask(x, y, cx, cy, maskW, maskH);
 
         if (onMask) {
-          // Drops falling across the mask illuminate in glowing neon white-green to form the face
+          // Drops falling across the mask illuminate in glowing white-green
           ctx.save();
           ctx.shadowColor = '#00ff41';
           ctx.shadowBlur = 10;
@@ -97,11 +96,11 @@ export default function MatrixRain() {
           ctx.fillStyle = '#39ff14';
           ctx.fillText(trailChar, x, y - fontSize);
         } else {
-          // Surrounding ambient rain: LOW CONTRAST, soft emerald green, ZERO white glare
-          ctx.fillStyle = 'rgba(0, 200, 60, 0.50)';
+          // Ambient background rain: LOW CONTRAST, soft emerald green, zero white glare
+          ctx.fillStyle = 'rgba(0, 200, 60, 0.40)';
           ctx.fillText(char, x, y);
 
-          ctx.fillStyle = 'rgba(0, 140, 40, 0.20)';
+          ctx.fillStyle = 'rgba(0, 140, 40, 0.15)';
           ctx.fillText(trailChar, x, y - fontSize);
         }
 
