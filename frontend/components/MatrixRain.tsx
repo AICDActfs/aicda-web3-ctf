@@ -12,65 +12,134 @@ export default function MatrixRain() {
     if (!ctx) return;
 
     let animationFrameId: number;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
-    const btcSymbol = '\u20BF';
-    const fontSize = 12;
-    const columns = Math.floor(canvas.width / fontSize);
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+
+    // Authentic glowing Matrix glyphs (Katakana, numbers, cyber symbols)
+    const chars = '日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ0123456789ABCDEF$#@*+<>~Ξ₿';
+    const fontSize = 14;
+    const columns = Math.ceil(canvas.width / fontSize);
     const drops: number[] = [];
+    const speeds: number[] = [];
 
     for (let i = 0; i < columns; i++) {
-      drops[i] = Math.random() * -100;
+      drops[i] = Math.floor(Math.random() * -100);
+      speeds[i] = 0.8 + Math.random() * 0.7;
     }
 
+    // Load transparent logo for real-time matrix illumination
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = 250;
+    offCanvas.height = 250;
+    const offCtx = offCanvas.getContext('2d');
+    let maskData: Uint8ClampedArray | null = null;
+
+    const img = new Image();
+    img.src = '/matrix-logo.png';
+    img.onload = () => {
+      if (offCtx) {
+        offCtx.drawImage(img, 0, 0, 250, 250);
+        maskData = offCtx.getImageData(0, 0, 250, 250).data;
+      }
+    };
+
+    const isInsideLogo = (x: number, y: number, cx: number, cy: number, size: number) => {
+      if (!maskData) return false;
+      const lx = x - (cx - size / 2);
+      const ly = y - (cy - size / 2);
+      if (lx < 0 || lx >= size || ly < 0 || ly >= size) return false;
+      const px = Math.floor((lx / size) * 250);
+      const py = Math.floor((ly / size) * 250);
+      const idx = (py * 250 + px) * 4;
+      return maskData[idx + 3] > 35;
+    };
+
     const draw = () => {
-      ctx.fillStyle = 'rgba(5, 5, 5, 0.15)';
+      ctx.fillStyle = 'rgba(4, 7, 10, 0.16)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = '#ffcf10';
-      ctx.font = `${fontSize}px monospace`;
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const curLogoSize = Math.min(Math.min(canvas.width, canvas.height) * 0.55, 420);
+
+      // Luminous hologram center aura (Screen mode = zero black rectangle)
+      if (img.complete && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = 0.22;
+
+        const glow = ctx.createRadialGradient(cx, cy, 30, cx, cy, curLogoSize * 0.6);
+        glow.addColorStop(0, 'rgba(0, 255, 65, 0.45)');
+        glow.addColorStop(0.5, 'rgba(0, 255, 65, 0.15)');
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(cx, cy, curLogoSize * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.drawImage(img, cx - curLogoSize / 2, cy - curLogoSize / 2, curLogoSize, curLogoSize);
+        ctx.restore();
+      }
+
+      ctx.font = `bold ${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
-        ctx.fillText(btcSymbol, i * fontSize, drops[i] * fontSize);
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const inLogo = isInsideLogo(x, y, cx, cy, curLogoSize);
+
+        if (inLogo) {
+          // Matrix digits inside logo illuminate with intense glow to form the logo shape!
+          ctx.save();
+          ctx.shadowColor = '#00ff41';
+          ctx.shadowBlur = 16;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(char, x, y);
+          ctx.restore();
+
+          ctx.fillStyle = '#39ff14';
+          ctx.fillText(char, x, y - fontSize);
+        } else {
+          // Bright flowing matrix rain
+          ctx.save();
+          ctx.shadowColor = '#00ff41';
+          ctx.shadowBlur = 9;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(char, x, y);
+          ctx.restore();
+
+          ctx.fillStyle = '#00ff41';
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x, y - fontSize);
+        }
 
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
           drops[i] = 0;
         }
-        drops[i]++;
+        drops[i] += speeds[i];
       }
+
       animationFrameId = requestAnimationFrame(draw);
     };
 
     draw();
 
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
+    window.addEventListener('resize', resize);
     return () => {
       cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', resize);
     };
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full opacity-25"
-      />
-      {/* Centered Glowing Matrix Hologram Logo (Apple Matrix Theme) */}
-      <div className="relative w-80 h-80 sm:w-[420px] sm:h-[420px] opacity-15 pointer-events-none select-none flex items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-cyber-green/40 blur-3xl animate-pulse" />
-        <img
-          src="/logo.png"
-          alt=""
-          className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(0,255,65,0.7)]"
-        />
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0"
+    />
   );
 }
