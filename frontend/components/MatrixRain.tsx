@@ -27,12 +27,12 @@ export default function MatrixRain() {
 
     for (let i = 0; i < columns; i++) {
       drops[i] = Math.floor(Math.random() * -100);
-      speeds[i] = 0.85 + Math.random() * 0.75;
+      speeds[i] = 0.75 + Math.random() * 0.65;
     }
 
     const offCanvas = document.createElement('canvas');
-    offCanvas.width = 300;
-    offCanvas.height = 420;
+    offCanvas.width = 240;
+    offCanvas.height = 360;
     const offCtx = offCanvas.getContext('2d');
     let maskData: Uint8ClampedArray | null = null;
 
@@ -40,8 +40,8 @@ export default function MatrixRain() {
     maskImg.src = '/mask-matrix.png';
     maskImg.onload = () => {
       if (offCtx) {
-        offCtx.drawImage(maskImg, 0, 0, 300, 420);
-        maskData = offCtx.getImageData(0, 0, 300, 420).data;
+        offCtx.drawImage(maskImg, 0, 0, 240, 360);
+        maskData = offCtx.getImageData(0, 0, 240, 360).data;
       }
     };
 
@@ -50,31 +50,32 @@ export default function MatrixRain() {
       const lx = x - (cx - w / 2);
       const ly = y - (cy - h / 2);
       if (lx < 0 || lx >= w || ly < 0 || ly >= h) return false;
-      const px = Math.floor((lx / w) * 300);
-      const py = Math.floor((ly / h) * 420);
-      const idx = (py * 300 + px) * 4;
-      return maskData[idx + 3] > 40;
+      const px = Math.floor((lx / w) * 240);
+      const py = Math.floor((ly / h) * 360);
+      const idx = (py * 240 + px) * 4;
+      return maskData[idx + 3] > 30;
     };
 
     const draw = () => {
-      ctx.fillStyle = 'rgba(4, 7, 10, 0.16)';
+      // Dark cyber trail
+      ctx.fillStyle = 'rgba(3, 6, 8, 0.22)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
-      const maskH = Math.min(canvas.height * 0.72, 500);
-      const maskW = maskH * (300 / 420);
+      const maskH = Math.min(canvas.height * 0.70, 480);
+      const maskW = maskH * (240 / 360);
 
-      // Subtle low-contrast watermark mask (keeps all challenge text 100% readable)
+      // Subtle Anonymous mask watermark in background (screen mode = zero glare, perfect readability)
       if (maskImg.complete && maskImg.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = 0.085;
+        ctx.globalAlpha = 0.12;
         ctx.drawImage(maskImg, cx - maskW / 2, cy - maskH / 2, maskW, maskH);
         ctx.restore();
       }
 
-      ctx.font = `bold ${fontSize}px monospace`;
+      ctx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
         const x = i * fontSize;
@@ -85,10 +86,10 @@ export default function MatrixRain() {
         const onMask = isInsideMask(x, y, cx, cy, maskW, maskH);
 
         if (onMask) {
-          // Falling characters illuminate bright white-green across the mask
+          // Drops falling across the mask illuminate in glowing neon white-green to form the face
           ctx.save();
           ctx.shadowColor = '#00ff41';
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 10;
           ctx.fillStyle = '#ffffff';
           ctx.fillText(char, x, y);
           ctx.restore();
@@ -96,19 +97,15 @@ export default function MatrixRain() {
           ctx.fillStyle = '#39ff14';
           ctx.fillText(trailChar, x, y - fontSize);
         } else {
-          // Normal matrix code rain
-          ctx.save();
-          ctx.shadowColor = '#00ff41';
-          ctx.shadowBlur = 6;
-          ctx.fillStyle = '#ffffff';
+          // Surrounding ambient rain: LOW CONTRAST, soft emerald green, ZERO white glare
+          ctx.fillStyle = 'rgba(0, 200, 60, 0.50)';
           ctx.fillText(char, x, y);
-          ctx.restore();
 
-          ctx.fillStyle = '#00ff41';
+          ctx.fillStyle = 'rgba(0, 140, 40, 0.20)';
           ctx.fillText(trailChar, x, y - fontSize);
         }
 
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
           drops[i] = 0;
         }
         drops[i] += speeds[i];
