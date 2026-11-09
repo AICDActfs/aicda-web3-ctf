@@ -27,7 +27,7 @@ export default function MatrixRain() {
 
     for (let i = 0; i < columns; i++) {
       drops[i] = Math.floor(Math.random() * -100);
-      speeds[i] = 0.75 + Math.random() * 0.65;
+      speeds[i] = 0.80 + Math.random() * 0.70;
     }
 
     const offCanvas = document.createElement('canvas');
@@ -57,24 +57,24 @@ export default function MatrixRain() {
     };
 
     const draw = () => {
-      ctx.fillStyle = 'rgba(3, 6, 8, 0.22)';
+      ctx.fillStyle = 'rgba(3, 6, 8, 0.20)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
-      const maskH = Math.min(canvas.height * 0.70, 480);
+      const maskH = Math.min(canvas.height * 0.72, 500);
       const maskW = maskH * (240 / 360);
 
-      // Subtle Anonymous mask watermark (soft green - zero glare)
+      // Subtle Anonymous mask watermark (soft green - zero glare, perfect readability)
       if (maskImg.complete && maskImg.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = 0.12;
+        ctx.globalAlpha = 0.16;
         ctx.drawImage(maskImg, cx - maskW / 2, cy - maskH / 2, maskW, maskH);
         ctx.restore();
       }
 
-      ctx.font = `${fontSize}px monospace`;
+      ctx.font = `bold ${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
         const x = i * fontSize;
@@ -88,7 +88,7 @@ export default function MatrixRain() {
           // Drops falling across the mask illuminate in glowing white-green
           ctx.save();
           ctx.shadowColor = '#00ff41';
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 12;
           ctx.fillStyle = '#ffffff';
           ctx.fillText(char, x, y);
           ctx.restore();
@@ -96,12 +96,15 @@ export default function MatrixRain() {
           ctx.fillStyle = '#39ff14';
           ctx.fillText(trailChar, x, y - fontSize);
         } else {
-          // Ambient background rain: LOW CONTRAST, soft emerald green, zero white glare
-          ctx.fillStyle = 'rgba(0, 200, 60, 0.40)';
+          // Balanced ambient rain: crisp mint-green heads, vibrant matrix green trail
+          ctx.fillStyle = 'rgba(187, 247, 208, 0.90)';
           ctx.fillText(char, x, y);
 
-          ctx.fillStyle = 'rgba(0, 140, 40, 0.15)';
+          ctx.fillStyle = 'rgba(0, 255, 65, 0.75)';
           ctx.fillText(trailChar, x, y - fontSize);
+
+          ctx.fillStyle = 'rgba(0, 180, 50, 0.35)';
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x, y - fontSize * 2);
         }
 
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {

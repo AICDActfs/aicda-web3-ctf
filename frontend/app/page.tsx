@@ -27,7 +27,7 @@ export default function LoginPage() {
     }
 
     if (enteredCode !== 'AICDAWEB3CTF') {
-      setError('ACCESS DENIED: Invalid Access Code. Use AICDAWEB3CTF.');
+      setError('ACCESS DENIED: Invalid Lab Access Code. Authorization failed.');
       setLoading(false);
       return;
     }
@@ -77,7 +77,7 @@ export default function LoginPage() {
             ADVANCED WEB3, SMART CONTRACT &amp; DEFI SECURITY AUDITING RANGE
           </p>
           <p className="text-[11px] text-gray-400 mt-1">
-            ANONYMOUS INDIA CYBER DEFENCE ACADEMY • CYBER WARFARE DIVISION
+            ANONYMOUS INDIA CYBER DEFENCE ACADEMY (AICDA)
           </p>
         </div>
 

@@ -1532,7 +1532,7 @@ export default function LabDetailClient({ slug }: { slug: string }) {
         </div>
 
         {/* 3 TABS NAVIGATION */}
-        <div className="flex items-center gap-2 border-b border-cyber-border">
+        <div className="flex items-center gap-2 border-b border-cyber-border overflow-x-auto no-scrollbar pb-1 w-full max-w-full">
           <button
             onClick={() => setActiveTab('theory')}
             className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 transition flex items-center gap-1.5 ${
