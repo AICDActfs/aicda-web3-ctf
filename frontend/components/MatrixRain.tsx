@@ -31,8 +31,8 @@ export default function MatrixRain() {
     }
 
     const offCanvas = document.createElement('canvas');
-    offCanvas.width = 240;
-    offCanvas.height = 360;
+    offCanvas.width = 400;
+    offCanvas.height = 800;
     const offCtx = offCanvas.getContext('2d');
     let maskData: Uint8ClampedArray | null = null;
 
@@ -40,8 +40,8 @@ export default function MatrixRain() {
     maskImg.src = '/mask-matrix.png';
     maskImg.onload = () => {
       if (offCtx) {
-        offCtx.drawImage(maskImg, 0, 0, 240, 360);
-        maskData = offCtx.getImageData(0, 0, 240, 360).data;
+        offCtx.drawImage(maskImg, 0, 0, 400, 800);
+        maskData = offCtx.getImageData(0, 0, 400, 800).data;
       }
     };
 
@@ -50,9 +50,9 @@ export default function MatrixRain() {
       const lx = x - (cx - w / 2);
       const ly = y - (cy - h / 2);
       if (lx < 0 || lx >= w || ly < 0 || ly >= h) return false;
-      const px = Math.floor((lx / w) * 240);
-      const py = Math.floor((ly / h) * 360);
-      const idx = (py * 240 + px) * 4;
+      const px = Math.floor((lx / w) * 400);
+      const py = Math.floor((ly / h) * 800);
+      const idx = (py * 400 + px) * 4;
       return maskData[idx + 3] > 30;
     };
 
@@ -62,14 +62,15 @@ export default function MatrixRain() {
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
-      const maskH = Math.min(canvas.height * 0.72, 500);
-      const maskW = maskH * (240 / 360);
+      const maskH = Math.min(canvas.height * 0.74, 520);
+      const maskW = maskH * (400 / 800);
 
-      // Subtle Anonymous mask watermark (soft green - zero glare, perfect readability)
       if (maskImg.complete && maskImg.naturalWidth > 0) {
         ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = 0.16;
+        ctx.globalAlpha = 0.18;
         ctx.drawImage(maskImg, cx - maskW / 2, cy - maskH / 2, maskW, maskH);
         ctx.restore();
       }
@@ -85,7 +86,6 @@ export default function MatrixRain() {
         const onMask = isInsideMask(x, y, cx, cy, maskW, maskH);
 
         if (onMask) {
-          // Drops falling across the mask illuminate in glowing white-green
           ctx.save();
           ctx.shadowColor = '#00ff41';
           ctx.shadowBlur = 12;
@@ -96,7 +96,6 @@ export default function MatrixRain() {
           ctx.fillStyle = '#39ff14';
           ctx.fillText(trailChar, x, y - fontSize);
         } else {
-          // Balanced ambient rain: crisp mint-green heads, vibrant matrix green trail
           ctx.fillStyle = 'rgba(187, 247, 208, 0.90)';
           ctx.fillText(char, x, y);
 
