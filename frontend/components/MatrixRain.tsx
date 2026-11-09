@@ -19,7 +19,6 @@ export default function MatrixRain() {
     };
     resize();
 
-    // Authentic Katakana glyphs, hex numbers, and cyber symbols
     const chars = '日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ0123456789ABCDEF$#@*+<>~Ξ₿';
     const fontSize = 15;
     const columns = Math.ceil(canvas.width / fontSize);
@@ -31,7 +30,6 @@ export default function MatrixRain() {
       speeds[i] = 0.85 + Math.random() * 0.75;
     }
 
-    // Load transparent Anonymous typographic mask
     const offCanvas = document.createElement('canvas');
     offCanvas.width = 300;
     offCanvas.height = 420;
@@ -59,7 +57,6 @@ export default function MatrixRain() {
     };
 
     const draw = () => {
-      // Subtle cyber background trail
       ctx.fillStyle = 'rgba(4, 7, 10, 0.16)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -68,7 +65,7 @@ export default function MatrixRain() {
       const maskH = Math.min(canvas.height * 0.72, 500);
       const maskW = maskH * (300 / 420);
 
-      // Low-contrast background mask (subtle watermark - keeps all challenge text 100% readable)
+      // Subtle low-contrast watermark mask (keeps all challenge text 100% readable)
       if (maskImg.complete && maskImg.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
@@ -88,7 +85,7 @@ export default function MatrixRain() {
         const onMask = isInsideMask(x, y, cx, cy, maskW, maskH);
 
         if (onMask) {
-          // Falling Katakana drops illuminate bright neon white-green across the Anonymous mask
+          // Falling characters illuminate bright white-green across the mask
           ctx.save();
           ctx.shadowColor = '#00ff41';
           ctx.shadowBlur = 12;
@@ -99,7 +96,7 @@ export default function MatrixRain() {
           ctx.fillStyle = '#39ff14';
           ctx.fillText(trailChar, x, y - fontSize);
         } else {
-          // Normal streaming Katakana matrix rain
+          // Normal matrix code rain
           ctx.save();
           ctx.shadowColor = '#00ff41';
           ctx.shadowBlur = 6;
