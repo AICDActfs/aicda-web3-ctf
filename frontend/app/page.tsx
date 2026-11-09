@@ -13,9 +13,22 @@ export default function LoginPage() {
   const [showCoinTransition, setShowCoinTransition] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+    const enteredCode = accessCode.trim().toUpperCase();
+    const enteredId = studentId.trim();
+
+    if (enteredCode === 'AICDAWEB3CTF') {
+      localStorage.setItem('aicda_student_id', enteredId);
+      localStorage.setItem('aicda_access_granted', 'true');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      fetch(apiUrl + '/api/v1/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_code: enteredCode, student_id: enteredId }),
+      }).catch(() => {});
+      setShowCoinTransition(true);
+      setTimeout(() => { router.push('/labs'); }, 1800);
+      return;
+    }
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 

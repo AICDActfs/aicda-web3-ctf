@@ -16,7 +16,7 @@ export default function MatrixRain() {
     canvas.height = window.innerHeight;
 
     const btcSymbol = '\u20BF';
-    const fontSize = 12; // Small, neat rain size
+    const fontSize = 12;
     const columns = Math.floor(canvas.width / fontSize);
     const drops: number[] = [];
 
@@ -25,11 +25,9 @@ export default function MatrixRain() {
     }
 
     const draw = () => {
-      // Solid stable matrix trail fade - NO shadowBlur or color cycling
       ctx.fillStyle = 'rgba(5, 5, 5, 0.15)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Bright solid golden Bitcoin color
       ctx.fillStyle = '#ffcf10';
       ctx.font = `${fontSize}px monospace`;
 
@@ -59,9 +57,20 @@ export default function MatrixRain() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none opacity-25 z-0"
-    />
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full opacity-25"
+      />
+      {/* Centered Glowing Matrix Hologram Logo (Apple Matrix Theme) */}
+      <div className="relative w-80 h-80 sm:w-[420px] sm:h-[420px] opacity-15 pointer-events-none select-none flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full bg-cyber-green/40 blur-3xl animate-pulse" />
+        <img
+          src="/logo.png"
+          alt=""
+          className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(0,255,65,0.7)]"
+        />
+      </div>
+    </div>
   );
 }
