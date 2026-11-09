@@ -19,68 +19,61 @@ export default function MatrixRain() {
     };
     resize();
 
-    // Authentic Matrix glyphs (Katakana, numbers, cyber symbols)
+    // Authentic Katakana glyphs, hex numbers, and cyber symbols
     const chars = '日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ0123456789ABCDEF$#@*+<>~Ξ₿';
-    const fontSize = 14;
+    const fontSize = 15;
     const columns = Math.ceil(canvas.width / fontSize);
     const drops: number[] = [];
     const speeds: number[] = [];
 
     for (let i = 0; i < columns; i++) {
       drops[i] = Math.floor(Math.random() * -100);
-      speeds[i] = 0.8 + Math.random() * 0.7;
+      speeds[i] = 0.85 + Math.random() * 0.75;
     }
 
+    // Load transparent Anonymous typographic mask
     const offCanvas = document.createElement('canvas');
-    offCanvas.width = 250;
-    offCanvas.height = 250;
+    offCanvas.width = 300;
+    offCanvas.height = 420;
     const offCtx = offCanvas.getContext('2d');
     let maskData: Uint8ClampedArray | null = null;
 
-    const img = new Image();
-    img.src = '/matrix-logo.png';
-    img.onload = () => {
+    const maskImg = new Image();
+    maskImg.src = '/mask-matrix.png';
+    maskImg.onload = () => {
       if (offCtx) {
-        offCtx.drawImage(img, 0, 0, 250, 250);
-        maskData = offCtx.getImageData(0, 0, 250, 250).data;
+        offCtx.drawImage(maskImg, 0, 0, 300, 420);
+        maskData = offCtx.getImageData(0, 0, 300, 420).data;
       }
     };
 
-    const isInsideLogo = (x: number, y: number, cx: number, cy: number, size: number) => {
+    const isInsideMask = (x: number, y: number, cx: number, cy: number, w: number, h: number) => {
       if (!maskData) return false;
-      const lx = x - (cx - size / 2);
-      const ly = y - (cy - size / 2);
-      if (lx < 0 || lx >= size || ly < 0 || ly >= size) return false;
-      const px = Math.floor((lx / size) * 250);
-      const py = Math.floor((ly / size) * 250);
-      const idx = (py * 250 + px) * 4;
-      return maskData[idx + 3] > 35;
+      const lx = x - (cx - w / 2);
+      const ly = y - (cy - h / 2);
+      if (lx < 0 || lx >= w || ly < 0 || ly >= h) return false;
+      const px = Math.floor((lx / w) * 300);
+      const py = Math.floor((ly / h) * 420);
+      const idx = (py * 300 + px) * 4;
+      return maskData[idx + 3] > 40;
     };
 
     const draw = () => {
+      // Subtle cyber background trail
       ctx.fillStyle = 'rgba(4, 7, 10, 0.16)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
-      const curLogoSize = Math.min(Math.min(canvas.width, canvas.height) * 0.55, 420);
+      const maskH = Math.min(canvas.height * 0.72, 500);
+      const maskW = maskH * (300 / 420);
 
-      // Glowing center hologram (Screen blend mode = zero black rectangle)
-      if (img.complete && img.naturalWidth > 0) {
+      // Low-contrast background mask (subtle watermark - keeps all challenge text 100% readable)
+      if (maskImg.complete && maskImg.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = 0.22;
-
-        const glow = ctx.createRadialGradient(cx, cy, 30, cx, cy, curLogoSize * 0.6);
-        glow.addColorStop(0, 'rgba(0, 255, 65, 0.45)');
-        glow.addColorStop(0.5, 'rgba(0, 255, 65, 0.15)');
-        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(cx, cy, curLogoSize * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.drawImage(img, cx - curLogoSize / 2, cy - curLogoSize / 2, curLogoSize, curLogoSize);
+        ctx.globalAlpha = 0.085;
+        ctx.drawImage(maskImg, cx - maskW / 2, cy - maskH / 2, maskW, maskH);
         ctx.restore();
       }
 
@@ -91,30 +84,31 @@ export default function MatrixRain() {
         const y = drops[i] * fontSize;
 
         const char = chars[Math.floor(Math.random() * chars.length)];
-        const inLogo = isInsideLogo(x, y, cx, cy, curLogoSize);
+        const trailChar = chars[Math.floor(Math.random() * chars.length)];
+        const onMask = isInsideMask(x, y, cx, cy, maskW, maskH);
 
-        if (inLogo) {
-          // Inside logo: digits illuminate intensely to carve out the logo in real time!
+        if (onMask) {
+          // Falling Katakana drops illuminate bright neon white-green across the Anonymous mask
           ctx.save();
           ctx.shadowColor = '#00ff41';
-          ctx.shadowBlur = 16;
+          ctx.shadowBlur = 12;
           ctx.fillStyle = '#ffffff';
           ctx.fillText(char, x, y);
           ctx.restore();
 
           ctx.fillStyle = '#39ff14';
-          ctx.fillText(char, x, y - fontSize);
+          ctx.fillText(trailChar, x, y - fontSize);
         } else {
-          // Flowing matrix rain
+          // Normal streaming Katakana matrix rain
           ctx.save();
           ctx.shadowColor = '#00ff41';
-          ctx.shadowBlur = 9;
+          ctx.shadowBlur = 6;
           ctx.fillStyle = '#ffffff';
           ctx.fillText(char, x, y);
           ctx.restore();
 
           ctx.fillStyle = '#00ff41';
-          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x, y - fontSize);
+          ctx.fillText(trailChar, x, y - fontSize);
         }
 
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
