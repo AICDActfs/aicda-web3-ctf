@@ -52,7 +52,7 @@ export default function Header({ score = 0, solvedCount = 0 }: HeaderProps) {
         <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded border border-cyber-cyan/40 bg-cyber-cyan/10 text-xs">
             <span className="text-gray-400">TARGET:</span>
-            <span className="text-cyber-cyan font-mono font-semibold truncate max-w-[220px]">
+            <span className="text-cyber-cyan font-mono font-semibold select-all">
               {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}
             </span>
           </div>
