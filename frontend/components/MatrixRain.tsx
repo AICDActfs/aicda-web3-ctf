@@ -19,7 +19,7 @@ export default function MatrixRain() {
     };
     resize();
 
-    // Authentic glowing Matrix glyphs (Katakana, numbers, cyber symbols)
+    // Authentic Matrix glyphs (Katakana, numbers, cyber symbols)
     const chars = '日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ0123456789ABCDEF$#@*+<>~Ξ₿';
     const fontSize = 14;
     const columns = Math.ceil(canvas.width / fontSize);
@@ -31,7 +31,6 @@ export default function MatrixRain() {
       speeds[i] = 0.8 + Math.random() * 0.7;
     }
 
-    // Load transparent logo for real-time matrix illumination
     const offCanvas = document.createElement('canvas');
     offCanvas.width = 250;
     offCanvas.height = 250;
@@ -66,7 +65,7 @@ export default function MatrixRain() {
       const cy = canvas.height / 2;
       const curLogoSize = Math.min(Math.min(canvas.width, canvas.height) * 0.55, 420);
 
-      // Luminous hologram center aura (Screen mode = zero black rectangle)
+      // Glowing center hologram (Screen blend mode = zero black rectangle)
       if (img.complete && img.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
@@ -95,7 +94,7 @@ export default function MatrixRain() {
         const inLogo = isInsideLogo(x, y, cx, cy, curLogoSize);
 
         if (inLogo) {
-          // Matrix digits inside logo illuminate with intense glow to form the logo shape!
+          // Inside logo: digits illuminate intensely to carve out the logo in real time!
           ctx.save();
           ctx.shadowColor = '#00ff41';
           ctx.shadowBlur = 16;
@@ -106,7 +105,7 @@ export default function MatrixRain() {
           ctx.fillStyle = '#39ff14';
           ctx.fillText(char, x, y - fontSize);
         } else {
-          // Bright flowing matrix rain
+          // Flowing matrix rain
           ctx.save();
           ctx.shadowColor = '#00ff41';
           ctx.shadowBlur = 9;
