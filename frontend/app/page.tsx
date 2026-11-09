@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Key, AlertTriangle, ArrowRight, UserCheck, Terminal, Cpu } from 'lucide-react';
+import { Shield, Key, AlertTriangle, ArrowRight, UserCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,58 +12,50 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCoinTransition, setShowCoinTransition] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     const enteredCode = accessCode.trim().toUpperCase();
     const enteredId = studentId.trim();
 
-    if (enteredCode === 'AICDAWEB3CTF') {
-      localStorage.setItem('aicda_student_id', enteredId);
-      localStorage.setItem('aicda_access_granted', 'true');
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      fetch(apiUrl + '/api/v1/auth/verify-code', {
+    if (!enteredId) {
+      setError('Recruit Call-sign / Student ID is required.');
+      setLoading(false);
+      return;
+    }
+
+    if (enteredCode !== 'AICDAWEB3CTF') {
+      setError('ACCESS DENIED: Invalid Access Code. Use AICDAWEB3CTF.');
+      setLoading(false);
+      return;
+    }
+
+    // Save session in localStorage
+    localStorage.setItem('aicda_student_id', enteredId);
+    localStorage.setItem('aicda_access_granted', 'true');
+
+    // Pre-warm backend in background (never blocks UI)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    try {
+      fetch(`${apiUrl}/api/v1/auth/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_code: enteredCode, student_id: enteredId }),
       }).catch(() => {});
-      setShowCoinTransition(true);
-      setTimeout(() => { router.push('/labs'); }, 1800);
-      return;
-    }
+    } catch (err) {}
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
-    try {
-      const res = await fetch(`${apiUrl}/api/v1/auth/verify-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_code: accessCode.trim(),
-          student_id: studentId.trim(),
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.valid) {
-        localStorage.setItem('aicda_student_id', studentId.trim());
-        localStorage.setItem('aicda_access_granted', 'true');
-        setShowCoinTransition(true);
-        setTimeout(() => {
-          router.push('/labs');
-        }, 2600);
-      } else {
-        setError(data.message || 'Invalid Access Code or Student Call-sign.');
-        setLoading(false);
-      }
-    } catch (err) {
-      setError('Cannot connect to CTF Backend API. Ensure backend is deployed and running on port 8080.');
-      setLoading(false);
-    }
+    // Show spinning Bitcoin transition and navigate directly to labs
+    setShowCoinTransition(true);
+    setTimeout(() => {
+      window.location.href = '/labs';
+    }, 1800);
   };
 
   return (
     <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-lg bg-cyber-card/90 border border-cyber-border rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-[0_0_40px_rgba(0,255,65,0.1)]">
-        {/* Header Branding */}
         <div className="flex flex-col items-center text-center mb-6">
           <div className="w-20 h-20 rounded-2xl border-2 border-cyber-green/50 bg-black/60 flex items-center justify-center p-2 mb-3 shadow-[0_0_20px_rgba(0,255,65,0.3)]">
             <img src="/logo.jpg" alt="AICDA Logo" className="w-full h-full object-contain" />
@@ -89,7 +81,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* PROMINENT DIRECTIVE & ANTI-AUTOMATION WARNING BANNER */}
         <div className="mb-6 p-4 rounded-xl border border-cyber-red/50 bg-cyber-red/10 text-xs text-gray-300">
           <div className="flex items-center gap-2 text-cyber-red font-bold text-xs uppercase tracking-wide mb-1.5">
             <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -101,7 +92,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
@@ -165,18 +155,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* GOLDEN BITCOIN SPINNING TRANSITION OVERLAY */}
       {showCoinTransition && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-xl animate-fade-in">
-          {/* Subtle Cyber Grid Background */}
           <div className="absolute inset-0 bg-[radial-gradient(#ffcc00_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
-
-          {/* Glowing Radial Halo */}
           <div className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-amber-500/20 via-yellow-400/30 to-amber-600/20 blur-3xl pointer-events-none animate-pulse" />
 
-          {/* 3D Spinning Golden Bitcoin Coin */}
           <div className="relative z-10 flex flex-col items-center">
-            {/* Embedded Keyframes for 100% Guaranteed Execution */}
             <style dangerouslySetInnerHTML={{ __html: `
               @keyframes btc-3d-spin {
                 0% { transform: perspective(800px) rotateY(0deg); }
@@ -205,13 +189,11 @@ export default function LoginPage() {
                 alt="Golden Bitcoin"
                 className="w-full h-full object-cover scale-[1.08]"
                 onError={(e) => {
-                  // Fallback if public file not cached yet
                   (e.target as HTMLImageElement).src = '/logo.jpg';
                 }}
               />
             </div>
 
-            {/* Status Announcement */}
             <div className="mt-8 text-center space-y-2 animate-fade-in">
               <div className="flex items-center justify-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyber-green animate-ping" />
