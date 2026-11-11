@@ -12,23 +12,30 @@ export default function MatrixRain() {
     if (!ctx) return;
 
     let animationFrameId: number;
+    const fontSize = 15;
+    const drops: number[] = [];
+    const speeds: number[] = [];
+
+    const ensureColumns = () => {
+      const needed = Math.ceil(canvas.width / fontSize) + 2;
+      while (drops.length < needed) {
+        drops.push(Math.floor(Math.random() * -80));
+        speeds.push(0.80 + Math.random() * 0.70);
+      }
+    };
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const targetW = Math.max(window.innerWidth, document.documentElement.clientWidth || 0);
+      const targetH = Math.max(window.innerHeight, document.documentElement.clientHeight || 0);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      ensureColumns();
     };
     resize();
 
     const chars = '日ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ0123456789ABCDEF$#@*+<>~Ξ₿';
-    const fontSize = 15;
-    const columns = Math.ceil(canvas.width / fontSize);
-    const drops: number[] = [];
-    const speeds: number[] = [];
-
-    for (let i = 0; i < columns; i++) {
-      drops[i] = Math.floor(Math.random() * -100);
-      speeds[i] = 0.80 + Math.random() * 0.70;
-    }
 
     const offCanvas = document.createElement('canvas');
     offCanvas.width = 400;
@@ -57,6 +64,14 @@ export default function MatrixRain() {
     };
 
     const draw = () => {
+      const currentW = Math.max(window.innerWidth, document.documentElement.clientWidth || 0);
+      const currentH = Math.max(window.innerHeight, document.documentElement.clientHeight || 0);
+      if (canvas.width !== currentW || canvas.height !== currentH) {
+        canvas.width = currentW;
+        canvas.height = currentH;
+        ensureColumns();
+      }
+
       ctx.fillStyle = 'rgba(3, 6, 8, 0.20)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -118,16 +133,18 @@ export default function MatrixRain() {
     draw();
 
     window.addEventListener('resize', resize);
+    window.visualViewport?.addEventListener('resize', resize);
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resize);
+      window.visualViewport?.removeEventListener('resize', resize);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="fixed inset-0 w-screen h-screen pointer-events-none z-0"
     />
   );
 }
