@@ -44,6 +44,7 @@ export default function AdminPage() {
   const [adminToken, setAdminToken] = useState<string>('');
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [authenticated, setAuthenticated] = useState<boolean>(false);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
@@ -75,6 +76,8 @@ export default function AdminPage() {
     if (savedToken) {
       setAdminToken(savedToken);
       fetchStats(savedToken);
+    } else {
+      setCheckingAuth(false);
     }
   }, []);
 
@@ -169,6 +172,17 @@ export default function AdminPage() {
   const handleExportCSV = () => {
     window.open(`${apiUrl}/api/v1/admin/export-csv?auth=${encodeURIComponent(adminToken)}`, '_blank');
   };
+
+    if (checkingAuth) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3">
+          <RefreshCw className="w-8 h-8 text-cyber-green animate-spin" />
+          <p className="text-xs font-mono text-cyber-green tracking-widest">VERIFYING SECURE SESSION...</p>
+        </div>
+      </div>
+    );
+  }
 
   // If Not Authenticated -> Show Password Screen
   if (!authenticated) {
