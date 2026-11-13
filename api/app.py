@@ -196,7 +196,7 @@ def validate_student(student_id):
     if sid.upper() in ("YOUR_CALLSIGN", "YOUR_STUDENT_ID", "ANONYMOUS", "1234", "TEST", "UNDEFINED", "NULL", ""):
         return False, f"Dummy call-sign '{sid}' is rejected by AICDA security protocols. Please authenticate at https://aicda-web3-ctf.vercel.app with your official recruit call-sign (e.g. OP_VIKRAM_77)."
     db = get_db()
-        row = db.execute("SELECT student_id FROM students WHERE student_id = ?", (sid,)).fetchone()
+    row = db.execute("SELECT student_id FROM students WHERE student_id = ?", (sid,)).fetchone()
     if not row:
         db.execute("""
             INSERT INTO students (student_id, score, last_active)
