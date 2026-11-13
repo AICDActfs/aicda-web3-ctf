@@ -3,6 +3,7 @@ import os
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "aicda-web3-super-secret-key-prod")
     _raw_admin = os.getenv("ADMIN_PASSWORD", "AICDA#Crypt0@Admin!2026")
+    _raw_admin = os.getenv("ADMIN_PASSWORD", "AICDA#Crypt0@Admin!2026")
     ADMIN_PASSWORD = "AICDA#Crypt0@Admin!2026" if _raw_admin in ("AICDAadmin", "admin", "admin123", "") else _raw_admin
     STUDENT_ACCESS_CODE = os.getenv("STUDENT_ACCESS_CODE", "AICDAWEB3CTF")
     
