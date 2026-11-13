@@ -13,7 +13,8 @@ import {
   ArrowLeft,
   CheckCircle2,
   AlertTriangle,
-  Activity
+  Activity,
+  LogOut
 } from 'lucide-react';
 
 interface LeaderboardEntry {
@@ -157,6 +158,14 @@ export default function AdminPage() {
     }
   };
 
+    const handleLogout = () => {
+    localStorage.removeItem('aicda_admin_token');
+    setAdminToken('');
+    setAuthenticated(false);
+    setStats(null);
+    setPasswordInput('');
+  };
+
   const handleExportCSV = () => {
     window.open(`${apiUrl}/api/v1/admin/export-csv?auth=${encodeURIComponent(adminToken)}`, '_blank');
   };
@@ -262,6 +271,15 @@ export default function AdminPage() {
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Reset All CTF</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs bg-black/60 border border-gray-600 hover:border-cyber-red hover:text-cyber-red text-gray-300 transition"
+              title="Terminate Admin Session"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
