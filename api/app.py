@@ -4,6 +4,7 @@ import time
 import json
 import sqlite3
 import hashlib
+import hmac
 from datetime import datetime
 from flask import Flask, request, jsonify, g, Response
 from flask_cors import CORS
@@ -88,7 +89,7 @@ def get_ip_hash():
 @app.before_request
 def enforce_rate_limits():
     path = request.path
-    if request.method == "OPTIONS" or path == "/api/v1/health":
+    if request.method == "OPTIONS" or path == "/api/v1/health" or path.startswith("/api/v1/auth/") or path.startswith("/api/v1/admin/"):
         return None
 
     ip_h = get_ip_hash()
@@ -193,11 +194,19 @@ def validate_student(student_id):
         return False, "Missing student_id in request. Provide your registered recruit call-sign in JSON body or query param."
     sid = str(student_id).strip()
     if sid.upper() in ("YOUR_CALLSIGN", "YOUR_STUDENT_ID", "ANONYMOUS", "1234", "TEST", "UNDEFINED", "NULL", ""):
-        return False, f"Dummy call-sign '{sid}' is rejected by AICDA security protocols. Please authenticate at http://localhost:3000 with your official recruit call-sign (e.g. OP_VIKRAM_77)."
+        return False, f"Dummy call-sign '{sid}' is rejected by AICDA security protocols. Please authenticate at https://aicda-web3-ctf.vercel.app with your official recruit call-sign (e.g. OP_VIKRAM_77)."
     db = get_db()
-    row = db.execute("SELECT student_id FROM students WHERE student_id = ?", (sid,)).fetchone()
+        row = db.execute("SELECT student_id FROM students WHERE student_id = ?", (sid,)).fetchone()
     if not row:
-        return False, f"Recruit call-sign '{sid}' is not registered in AICDA range. Please log in first at http://localhost:3000 with your call-sign and Access Code AICDAWEB3CTF."
+        db.execute("""
+            INSERT INTO students (student_id, score, last_active)
+            VALUES (?, 0, CURRENT_TIMESTAMP)
+            ON CONFLICT(student_id) DO UPDATE SET last_active = CURRENT_TIMESTAMP
+        """, (sid,))
+        db.commit()
+    else:
+        db.execute("UPDATE students SET last_active = CURRENT_TIMESTAMP WHERE student_id = ?", (sid,))
+        db.commit()
     return True, sid
 
 
@@ -1086,12 +1095,37 @@ def admin_login():
     data = request.get_json() or {}
     password = data.get("password", "")
     if password == Config.ADMIN_PASSWORD:
-        return jsonify({"success": True, "token": Config.ADMIN_PASSWORD, "message": "Admin authorization granted."})
+        return jsonify({"success": True, "token": generate_admin_token(), "message": "Admin authorization granted."})
     return jsonify({"success": False, "message": "Invalid Administrator Password."}), 401
 
+def generate_admin_token():
+    ts = int(time.time())
+    msg = f"aicda_admin:{ts}:{Config.ADMIN_PASSWORD}"
+    sig = hmac.new(Config.SECRET_KEY.encode(), msg.encode(), hashlib.sha256).hexdigest()
+    return f"{ts}.{sig}"
+
+def verify_admin_token(token):
+    if not token:
+        return False
+    if token == Config.ADMIN_PASSWORD:
+        return True
+    try:
+        parts = str(token).split(".", 1)
+        if len(parts) != 2:
+            return False
+        ts_str, sig = parts
+        ts = int(ts_str)
+        if abs(time.time() - ts) > 86400:
+            return False
+        expected_msg = f"aicda_admin:{ts}:{Config.ADMIN_PASSWORD}"
+        expected_sig = hmac.new(Config.SECRET_KEY.encode(), expected_msg.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(sig, expected_sig)
+    except Exception:
+        return False
+
 def check_admin_auth():
-    auth_header = request.headers.get("X-Admin-Key", "")
-    return auth_header == Config.ADMIN_PASSWORD
+    auth_header = request.headers.get("X-Admin-Key", "") or request.args.get("auth", "")
+    return verify_admin_token(auth_header)
 
 @app.route("/api/v1/admin/stats", methods=["GET"])
 def admin_stats():
@@ -1188,7 +1222,8 @@ def admin_reset_all():
     p2p_network_state.clear()
     cross_chain_state.clear()
 
-    return jsonify({"success": True, "message": "ALL students, submissions, and CTF states have been wiped clean."})
+    receipt = hashlib.sha256(f"WIPE_CONFIRMED:{time.time()}:{Config.SECRET_KEY}".encode()).hexdigest()[:16]
+    return jsonify({"success": True, "receipt": receipt, "message": "ALL students, submissions, and CTF states have been wiped clean."})
 
 @app.route("/api/v1/admin/export-csv", methods=["GET"])
 def admin_export_csv():

@@ -1337,7 +1337,7 @@ export default function LabDetailClient({ slug }: { slug: string }) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const targetApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const targetApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aicda-web3-api.onrender.com';
 
   const fetchStudentProgress = async (sid: string) => {
     if (!sid || sid === 'anonymous') return;

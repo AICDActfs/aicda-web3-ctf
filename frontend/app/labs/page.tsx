@@ -110,7 +110,7 @@ export default function LabsPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchProgress = async (sid: string) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aicda-web3-api.onrender.com';
     try {
       const res = await fetch(`${apiUrl}/api/v1/student/progress?student_id=${encodeURIComponent(sid)}`);
       if (res.ok) {
@@ -146,7 +146,7 @@ export default function LabsPage() {
     if (!confirm('Are you sure you want to reset all your captured flags? Your score will return to 0.')) {
       return;
     }
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aicda-web3-api.onrender.com';
     try {
       const res = await fetch(`${apiUrl}/api/v1/student/reset`, {
         method: 'POST',

@@ -10,6 +10,6 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: ADMIN_PASSWORD
-        value: AICDAadmin
+        value: "AICDA#Crypt0@Admin!2026"
       - key: STUDENT_ACCESS_CODE
         value: AICDAWEB3CTF

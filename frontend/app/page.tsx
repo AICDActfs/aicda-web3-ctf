@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCoinTransition, setShowCoinTransition] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -37,13 +37,13 @@ export default function LoginPage() {
     localStorage.setItem('aicda_access_granted', 'true');
 
     // Pre-warm backend in background (never blocks UI)
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aicda-web3-api.onrender.com';
     try {
-      fetch(`${apiUrl}/api/v1/auth/verify-code`, {
+      await fetch(`${apiUrl}/api/v1/auth/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_code: enteredCode, student_id: enteredId }),
-      }).catch(() => {});
+      });
     } catch (err) {}
 
     // Show spinning Bitcoin transition and navigate directly to labs

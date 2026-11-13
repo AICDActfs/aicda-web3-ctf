@@ -32,7 +32,7 @@ export default function FlagSubmitModal({
     setMessage(null);
 
     const studentId = localStorage.getItem('aicda_student_id') || 'anonymous_operative';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aicda-web3-api.onrender.com';
 
     try {
       const res = await fetch(`${apiUrl}/api/v1/flags/submit`, {

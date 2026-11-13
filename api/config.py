@@ -2,7 +2,7 @@ import os
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "aicda-web3-super-secret-key-prod")
-    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "AICDAadmin")
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "AICDA#Crypt0@Admin!2026")
     STUDENT_ACCESS_CODE = os.getenv("STUDENT_ACCESS_CODE", "AICDAWEB3CTF")
     
     # Render Free-Tier Memory & RPC Fallback Profile

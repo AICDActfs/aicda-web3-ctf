@@ -17,9 +17,10 @@ export default function MatrixRain() {
     const speeds: number[] = [];
 
     const ensureColumns = () => {
-      const needed = Math.ceil(canvas.width / fontSize) + 2;
+      const needed = Math.ceil(canvas.width / fontSize) + 6;
       while (drops.length < needed) {
-        drops.push(Math.floor(Math.random() * -80));
+        const maxRows = Math.max(Math.ceil(canvas.height / fontSize), 40);
+        drops.push(Math.floor(Math.random() * maxRows));
         speeds.push(0.80 + Math.random() * 0.70);
       }
     };
@@ -144,7 +145,7 @@ export default function MatrixRain() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-screen h-screen pointer-events-none z-0"
+      className="fixed inset-0 w-full h-full pointer-events-none z-0"
     />
   );
 }

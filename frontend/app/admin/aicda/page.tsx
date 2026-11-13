@@ -48,7 +48,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aicda-web3-api.onrender.com';
 
   const fetchStats = async (token: string) => {
     try {
@@ -98,11 +98,11 @@ export default function AdminPage() {
         body: JSON.stringify({ password: passwordInput.trim() }),
       });
       const data = await res.json();
-      if (res.ok && data.success) {
-        localStorage.setItem('aicda_admin_token', passwordInput.trim());
-        setAdminToken(passwordInput.trim());
+      if (res.ok && data.success && data.token) {
+        localStorage.setItem('aicda_admin_token', data.token);
+        setAdminToken(data.token);
         setAuthenticated(true);
-        fetchStats(passwordInput.trim());
+        fetchStats(data.token);
       } else {
         setAuthError(data.message || 'Incorrect Administrator Password.');
       }
@@ -135,16 +135,21 @@ export default function AdminPage() {
   };
 
   const handleResetAll = async () => {
-    const confirmText = prompt('WARNING: This will wipe ALL students and submissions. Type "RESET" to confirm:');
-    if (confirmText !== 'RESET') return;
+    const confirmText = prompt('CRITICAL WARNING: This will permanently wipe ALL students and submissions.\nType "PERMANENTLY_RESET_ALL_CTF" to confirm:');
+    if (confirmText !== 'PERMANENTLY_RESET_ALL_CTF') return;
 
     try {
       const res = await fetch(`${apiUrl}/api/v1/admin/reset-all`, {
         method: 'POST',
-        headers: { 'X-Admin-Key': adminToken },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Key': adminToken,
+        },
+        body: JSON.stringify({ confirmation: 'PERMANENTLY_RESET_ALL_CTF' }),
       });
-      if (res.ok) {
-        alert('All CTF submissions and student data have been wiped clean.');
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success && data.receipt) {
+        alert('All CTF submissions and student data have been wiped clean. Receipt: ' + data.receipt);
         fetchStats(adminToken);
       }
     } catch (e) {
